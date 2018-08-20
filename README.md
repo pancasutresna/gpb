@@ -1,2 +1,2 @@
 # gpb
-General Purpose Blockchain
+General Purpose Blockchain in Go :=
