@@ -2,11 +2,16 @@ package main
 
 import (
 	"bytes"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/gob"
 	"encoding/hex"
 	"fmt"
 	"log"
+	"math/big"
+	"strings"
 )
 
 const subsidy = 10
@@ -37,7 +42,7 @@ func (tx *Transaction) Hash() []byte {
 	var hash [32]byte
 
 	txCopy := *tx
-	txCopy.ID := []byte{}
+	txCopy.ID = []byte{}
 
 	hash = sha256.Sum256(txCopy.Serialize())
 
@@ -76,9 +81,9 @@ func (tx *Transaction) Sign(privKey ecdsa.PrivateKey, prevTXs map[string]Transac
 }
 
 func (tx Transaction) String() string {
-	var line []string
+	var lines []string
 
-	lines = append(lines.fmt.sprintf("--- Transaction %x:", tx.ID))
+	lines = append(lines, fmt.Sprintf("--- Transaction %x:", tx.ID))
 
 	for i, input := range tx.Vin {
 		lines = append(lines, fmt.Sprintf("		Input 	%d :", i))
@@ -114,7 +119,7 @@ func (tx *Transaction) TrimmedCopy() Transaction {
 	return txCopy
 }
 
-func (tx *Transaction) Verify(prevTXs map[string] Transaction) bool {
+func (tx *Transaction) Verify(prevTXs map[string]Transaction) bool {
 	if tx.IsCoinbase() {
 		return true
 	}
@@ -139,7 +144,7 @@ func (tx *Transaction) Verify(prevTXs map[string] Transaction) bool {
 		s := big.Int{}
 		sigLen := len(vin.Signature)
 		r.SetBytes(vin.Signature[:(sigLen / 2)])
-		s.SetBytes(vin.Signature[(sigLen  / 2):])
+		s.SetBytes(vin.Signature[(sigLen / 2):])
 
 		x := big.Int{}
 		y := big.Int{}
@@ -162,7 +167,7 @@ func NewCoinbaseTX(to, data string) *Transaction {
 	}
 
 	txin := TXInput{[]byte{}, -1, nil, []byte(data)}
-	txout := NewTXOutput{subsidy, to}
+	txout := NewTXOutput(subsidy, to)
 	tx := Transaction{nil, []TXInput{txin}, []TXOutput{*txout}}
 	tx.ID = tx.Hash()
 
@@ -200,7 +205,7 @@ func NewUTXOTransaction(from, to string, amount int, bc *Blockchain) *Transactio
 
 	outputs = append(outputs, *NewTXOutput(amount, to))
 	if acc > amount {
-		outputs = append(outputs, *NewTXOutput(acc - amount, from))
+		outputs = append(outputs, *NewTXOutput(acc-amount, from))
 	}
 
 	tx := Transaction{nil, inputs, outputs}

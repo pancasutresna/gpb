@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 )
 
 type CLI struct{}
@@ -32,7 +31,7 @@ func (cli *CLI) Run() {
 
 	getBalanceCmd := flag.NewFlagSet("getbalance", flag.ExitOnError)
 	createBlockchainCmd := flag.NewFlagSet("createblockchain", flag.ExitOnError)
-	createWaleltCmd := flag.NewFlagSet("createwallet", flag.ExitOnError)
+	createWalletCmd := flag.NewFlagSet("createwallet", flag.ExitOnError)
 	listAddressesCmd := flag.NewFlagSet("listaddresses", flag.ExitOnError)
 	sendCmd := flag.NewFlagSet("send", flag.ExitOnError)
 	printChainCmd := flag.NewFlagSet("printchain", flag.ExitOnError)
@@ -55,7 +54,7 @@ func (cli *CLI) Run() {
 			log.Panic(err)
 		}
 	case "createwallet":
-		err := createWaleltCmd.Parse(os.Args[2:])
+		err := createWalletCmd.Parse(os.Args[2:])
 		if err != nil {
 			log.Panic(err)
 		}
@@ -95,8 +94,8 @@ func (cli *CLI) Run() {
 		cli.createBlockchain(*createBlockchainAddress)
 	}
 
-	if createWaleltCmd.Parsed() {
-		cli.createWalelt()
+	if createWalletCmd.Parsed() {
+		cli.createWallet()
 	}
 
 	if listAddressesCmd.Parsed() {

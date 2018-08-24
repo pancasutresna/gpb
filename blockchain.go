@@ -104,7 +104,7 @@ Work:
 		txID := hex.EncodeToString(tx.ID)
 
 		for outIdx, out := range tx.Vout {
-			if out.CanBeUnlockedWith(pubKeyHash) && accumulated < amount {
+			if out.IsLockedWithKey(pubKeyHash) && accumulated < amount {
 				accumulated += out.Value
 				unspentOutputs[txID] = append(unspentOutputs[txID], outIdx)
 
@@ -207,7 +207,7 @@ func (bc *Blockchain) MineBlock(transactions []*Transaction) {
 	var lastHash []byte
 
 	for _, tx := range transactions {
-		if bc.VeryfyTransaction(tx) != true {
+		if bc.VerifyTransaction(tx) != true {
 			log.Panic("ERROR : Invalid transaction")
 		}
 	}

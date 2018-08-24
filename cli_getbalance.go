@@ -1,7 +1,12 @@
 package main
 
+import (
+	"fmt"
+	"log"
+)
+
 func (cli *CLI) getBalance(address string) {
-	if !validateAddress(address) {
+	if !ValidateAddress(address) {
 		log.Panic("ERROR : Address is not valid")
 	}
 
